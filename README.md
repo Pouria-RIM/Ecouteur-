@@ -16,7 +16,7 @@ Cette version expérimentale prend le son au moyen du microphone, estime sa fré
 - Accès au microphone via `getUserMedia()`
 - Analyse temporelle du signal et synthèse sonore par oscillateur
 ## Lancer le projet
-Ouvrir `ecouteur.html` dans un navigateur compatible. Autoriser l’accès au microphone lorsque le navigateur le demande.
+Ouvrir `index.html` dans un navigateur compatible. Autoriser l’accès au microphone lorsque le navigateur le demande.
 Suivre les instructions et expérimenter.
 ## Limites de cette version
 Il s’agit d’un prototype expérimental. L’estimation peut être imprécise avec des sons complexes, du bruit ambiant ou plusieurs sources sonores simultanées. Cette version mesure une fréquence sur un court extrait ; elle ne réalise pas une analyse complète et continue de l’environnement sonore.
