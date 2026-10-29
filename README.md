@@ -21,6 +21,6 @@ Cette version expérimentale prend le son au moyen du microphone, estime sa fré
 - Analyse temporelle du signal et synthèse sonore par oscillateur
 ## Limites de cette version
 Il s’agit d’un prototype expérimental. L’estimation peut être imprécise avec des sons complexes, du bruit ambiant ou plusieurs sources sonores simultanées. Cette version mesure une fréquence sur un court extrait ; elle ne réalise pas une analyse complète et continue de l’environnement sonore.
-- Les anciennes versions non fonctionnelles sont disponibles via la 2eme branche. 
+- Les anciennes versions non fonctionnelles sont disponibles via la 2ᵉ branche. 
 ## Contexte du projet
 Le projet s’inscrit dans une réflexion autour de la miniature sonore et du traitement informatique du son, en lien avec l’espace composite, la programmation web, le Web Audio et l’informatique musicale.
