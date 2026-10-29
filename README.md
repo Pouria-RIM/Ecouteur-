@@ -1,114 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Multi-Pitch Detector (Intervals)</title>
-  <style>
-    body { font-family: Arial, sans-serif; text-align: center; background: #111; color: #0f0; padding: 50px; }
-    button { padding: 20px 40px; font-size: 24px; background: #222; color: #0f0; border: 2px solid #0f0; cursor: pointer; }
-    #status { font-size: 26px; margin: 30px; min-height: 120px; }
-    .freq { margin: 8px; font-size: 22px; }
-  </style>
-</head>
-<body>
-  <h1>Multi-Pitch Listener (Intervals)</h1>
-  <p>Try singing two notes together or playing an interval for 3 seconds</p>
-  
-  <button id="btn">🎤 Listen for 3 seconds</button>
-  <div id="status">Ready</div>
-
-  <script>
-    const btn = document.getElementById('btn');
-    const status = document.getElementById('status');
-    let audioContext;
-
-    function findPeaks(dataArray, sampleRate) {
-      const peaks = [];
-      const minFreq = 60;
-      const maxFreq = 1500;
-      const binSize = sampleRate / dataArray.length;
-
-      for (let i = 1; i < dataArray.length / 2 - 1; i++) {
-        const freq = i * binSize;
-        if (freq < minFreq || freq > maxFreq) continue;
-
-        if (dataArray[i] > dataArray[i-1] && dataArray[i] > dataArray[i+1]) {
-          if (dataArray[i] > 0.001) {   // threshold
-            peaks.push({ freq: Math.round(freq), magnitude: dataArray[i] });
-          }
-        }
-      }
-
-      // Sort by magnitude and take top 3
-      peaks.sort((a, b) => b.magnitude - a.magnitude);
-      return peaks.slice(0, 3).map(p => p.freq);
-    }
-
-    btn.onclick = async () => {
-      btn.disabled = true;
-      status.textContent = "Listening for 3 seconds... Sing an interval or chord";
-
-      if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        const analyser = audioContext.createAnalyser();
-        analyser.fftSize = 8192;                    // Higher resolution
-        analyser.smoothingTimeConstant = 0.8;
-
-        const source = audioContext.createMediaStreamSource(stream);
-        source.connect(analyser);
-
-        const buffer = new Float32Array(analyser.frequencyBinCount);
-
-        setTimeout(() => {
-          analyser.getFloatFrequencyData(buffer);
-          stream.getTracks().forEach(t => t.stop());
-
-          const detectedFreqs = findPeaks(buffer, audioContext.sampleRate);
-
-          if (detectedFreqs.length > 0) {
-            let text = "Detected frequencies:<br>";
-            detectedFreqs.forEach(f => {
-              text += `<span class="freq">→ ${f} Hz</span><br>`;
-            });
-            status.innerHTML = text;
-            
-            // Play all detected frequencies
-            detectedFreqs.forEach((freq, i) => {
-              setTimeout(() => playTone(freq, 0.35 - i*0.08), i * 150);
-            });
-          } else {
-            status.textContent = "No clear pitches detected.";
-          }
-
-          btn.disabled = false;
-        }, 3000);
-
-      } catch(e) {
-        status.textContent = "Microphone error.";
-        btn.disabled = false;
-      }
-    };
-
-    function playTone(freq, gainValue) {
-      const now = audioContext.currentTime;
-      const osc = audioContext.createOscillator();
-      osc.type = 'triangle';           // Softer than sawtooth
-      osc.frequency.value = freq;
-
-      const gain = audioContext.createGain();
-      gain.gain.setValueAtTime(gainValue, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 10);
-
-      const filter = audioContext.createBiquadFilter();
-      filter.type = 'lowpass';
-      filter.frequency.value = 6000;
-
-      osc.connect(filter).connect(gain).connect(audioContext.destination);
-      osc.start(now);
-      osc.stop(now + 10);
-    }
-  </script>
-</body>
-</html>
+# Miniature Sonore — Espace Composite
+Auteur : Pouria AKBARHESARAKI
+## Présentation
+La notion de « miniature sonore » est peu connue et peut recevoir plusieurs interprétations. Ce projet explore l’idée d’un dispositif interactif capable de résumer un son entendu dans son environnement en une note musicale : une forme de « miniaturisation » sonore.
+Cette version expérimentale prend le son au moyen du microphone, estime sa fréquence fondamentale, puis la restitue sous la forme d’un son synthétique.
+## Fonctionnement
+1. Cliquer sur « Commencer l’écoute (3s) » et autoriser l’accès au microphone.
+2. Chanter ou jouer un son pendant les trois secondes d’écoute.
+3. Le programme analyse un court tampon audio et affiche la fréquence estimée en hertz.
+4. Si une fréquence exploitable est détectée, le navigateur la restitue avec un oscillateur en triangle.
+5. Le traitement utilise une estimation de hauteur fondée sur la corrélation du signal dans le domaine temporel, plutôt qu’une détection de hauteur fondée sur les pics du spectre FFT.
+## Technologies
+- HTML et CSS
+- JavaScript (https://strudel.cc)
+- Web Audio API
+- Accès au microphone via `getUserMedia()`
+- Analyse temporelle du signal et synthèse sonore par oscillateur
+## Lancer le projet
+Ouvrir `ecouteur.html` dans un navigateur compatible. Autoriser l’accès au microphone lorsque le navigateur le demande.
+Suivre les instructions et expérimenter.
+## Limites de cette version
+Il s’agit d’un prototype expérimental. L’estimation peut être imprécise avec des sons complexes, du bruit ambiant ou plusieurs sources sonores simultanées. Cette version mesure une fréquence sur un court extrait ; elle ne réalise pas une analyse complète et continue de l’environnement sonore.
+## Contexte du projet
+Le projet s’inscrit dans une réflexion autour de la miniature sonore et du traitement informatique du son, en lien avec l’espace composite, la programmation web, le Web Audio et l’informatique musicale.
